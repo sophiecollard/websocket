@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>WebSocket</title>
+
+    <!-- Import the Bulma stylesheet -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+
+    <!-- Import app code -->
+    <script src="elm.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      (function() {
+        // Elm app setup
+        var app = Elm.Main.init({
+          node: document.getElementById("app")
+        });
+
+        // Websocket ports setup
+        app.ports.connect.subscribe(connect);
+
+        let socket;
+
+        function connect(url) {
+          // If the WebSocket's readyState value is 0 (CONNECTING) or 1 (OPEN), close it first
+          // NOTE Does closure always complete before a new socket is opened?
+          if (typeof socket !== 'undefined' && socket.readyState < 2) {
+            socket.close(1000);
+          }
+
+          socket = new WebSocket(url);
+
+          socket.onmessage = function(event) {
+            app.ports.onMessage.send(event.data);
+          };
+
+          socket.onerror = function(event) {
+            app.ports.onError.send({});
+          };
+
+          socket.onopen = function(event) {
+            app.ports.onOpen.send({});
+          };
+
+          socket.onclose = function(event) {
+            app.ports.onClose.send(event.code);
+          };
+        }
+      })();
+    </script>
+  </body>
+</html>
