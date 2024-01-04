@@ -1,6 +1,6 @@
-package com.github.sophiecollard.domain.clients
+package com.github.sophiecollard.airquality.domain.clients
 
-import com.github.sophiecollard.domain.model.DailyAirQualityIndex
+import com.github.sophiecollard.airquality.domain.model.DailyAirQualityIndex
 import org.http4s.implicits._
 import org.http4s.Uri
 import sttp.tapir._

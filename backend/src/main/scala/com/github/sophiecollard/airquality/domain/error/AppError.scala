@@ -1,4 +1,4 @@
-package com.github.sophiecollard.domain.error
+package com.github.sophiecollard.airquality.domain.error
 
 import sttp.model.StatusCode
 

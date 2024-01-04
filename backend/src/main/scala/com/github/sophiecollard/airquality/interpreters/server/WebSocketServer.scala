@@ -1,8 +1,8 @@
-package com.github.sophiecollard.interpreters.server
+package com.github.sophiecollard.airquality.interpreters.server
 
 import cats.effect.IO
 import com.comcast.ip4s._
-import com.github.sophiecollard.interpreters.api.WebSocketEndpoints
+import com.github.sophiecollard.airquality.interpreters.api.WebSocketEndpoints
 import org.http4s.Http
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.Router

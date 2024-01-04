@@ -1,10 +1,10 @@
 package com.github.sophiecollard
 
 import cats.effect.{ExitCode, IO, IOApp}
-import com.github.sophiecollard.domain.model.DailyAirQualityIndex
-import com.github.sophiecollard.interpreters.api.{Endpoints, WebSocketEndpoints}
-import com.github.sophiecollard.interpreters.clients.LondonAirClient
-import com.github.sophiecollard.interpreters.server.{Server, WebSocketServer}
+import com.github.sophiecollard.airquality.domain.model.DailyAirQualityIndex
+import com.github.sophiecollard.airquality.interpreters.api.{Endpoints, WebSocketEndpoints}
+import com.github.sophiecollard.airquality.interpreters.clients.LondonAirClient
+import com.github.sophiecollard.airquality.interpreters.server.{Server, WebSocketServer}
 import fs2._
 import org.http4s.ember.client.EmberClientBuilder
 import org.typelevel.log4cats.Logger

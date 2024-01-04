@@ -1,8 +1,8 @@
-package com.github.sophiecollard.interpreters.api
+package com.github.sophiecollard.airquality.interpreters.api
 
 import cats.effect.IO
-import com.github.sophiecollard.domain.api.EndpointsAlgebra
-import com.github.sophiecollard.domain.model.DailyAirQualityIndex
+import com.github.sophiecollard.airquality.domain.api.EndpointsAlgebra
+import com.github.sophiecollard.airquality.domain.model.DailyAirQualityIndex
 import org.http4s.HttpRoutes
 import sttp.tapir.server.ServerEndpoint
 import sttp.tapir.server.http4s.Http4sServerInterpreter
