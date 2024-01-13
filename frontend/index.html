@@ -38,17 +38,17 @@
             app.ports.onMessage.send(event.data);
           };
 
-          socket.onerror = function(event) {
-            app.ports.onError.send({});
-          };
+          // socket.onerror = function(event) {
+          //   app.ports.onError.send({});
+          // };
 
-          socket.onopen = function(event) {
-            app.ports.onOpen.send({});
-          };
+          // socket.onopen = function(event) {
+          //   app.ports.onOpen.send({});
+          // };
 
-          socket.onclose = function(event) {
-            app.ports.onClose.send(event.code);
-          };
+          // socket.onclose = function(event) {
+          //   app.ports.onClose.send(event.code);
+          // };
         }
       })();
     </script>
