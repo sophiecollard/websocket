@@ -1,11 +1,11 @@
-package com.github.sophiecollard.interpreters.clients
+package com.github.sophiecollard.airquality.interpreters.clients
 
 import cats.effect.IO
 import cats.implicits._
-import com.github.sophiecollard.domain.clients.{LondonAirClientAlgebra, LondonAirEndpointsAlgebra}
-import com.github.sophiecollard.domain.error.AppError
-import com.github.sophiecollard.domain.error.AppError.{ThirdPartyNotReachable, ThirdPartyRespondedWithUnexpectedStatusCode}
-import com.github.sophiecollard.domain.model.DailyAirQualityIndex
+import com.github.sophiecollard.airquality.domain.clients.{LondonAirClientAlgebra, LondonAirEndpointsAlgebra}
+import com.github.sophiecollard.airquality.domain.error.AppError
+import AppError.{ThirdPartyNotReachable, ThirdPartyRespondedWithUnexpectedStatusCode}
+import com.github.sophiecollard.airquality.domain.model.DailyAirQualityIndex
 import org.http4s.Status
 import org.http4s.client.{Client, ConnectionFailure}
 import org.typelevel.log4cats.Logger

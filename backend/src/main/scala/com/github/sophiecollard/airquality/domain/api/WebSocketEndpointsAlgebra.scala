@@ -1,6 +1,6 @@
-package com.github.sophiecollard.domain.api
+package com.github.sophiecollard.airquality.domain.api
 
-import com.github.sophiecollard.domain.model.DailyAirQualityIndex.LocalAuthority
+import com.github.sophiecollard.airquality.domain.model.DailyAirQualityIndex.LocalAuthority
 import fs2.Pipe
 import sttp.capabilities.fs2.Fs2Streams
 import sttp.capabilities.WebSockets

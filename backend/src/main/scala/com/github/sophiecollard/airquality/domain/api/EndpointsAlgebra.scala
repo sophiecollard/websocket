@@ -1,6 +1,6 @@
-package com.github.sophiecollard.domain.api
+package com.github.sophiecollard.airquality.domain.api
 
-import com.github.sophiecollard.domain.model.DailyAirQualityIndex.LocalAuthority
+import com.github.sophiecollard.airquality.domain.model.DailyAirQualityIndex.LocalAuthority
 import sttp.tapir._
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody

@@ -1,9 +1,9 @@
-package com.github.sophiecollard.interpreters.api
+package com.github.sophiecollard.airquality.interpreters.api
 
 import cats.effect.IO
-import com.github.sophiecollard.domain.api.{WebSocketEndpointsAlgebra, WebSocketEvent}
-import com.github.sophiecollard.domain.model.DailyAirQualityIndex.LocalAuthority
-import com.github.sophiecollard.domain.model.DailyAirQualityIndex
+import com.github.sophiecollard.airquality.domain.model.DailyAirQualityIndex
+import DailyAirQualityIndex.LocalAuthority
+import com.github.sophiecollard.airquality.domain.api.{WebSocketEndpointsAlgebra, WebSocketEvent}
 import fs2.{Pipe, Stream}
 import org.http4s.HttpRoutes
 import org.http4s.server.websocket.WebSocketBuilder2

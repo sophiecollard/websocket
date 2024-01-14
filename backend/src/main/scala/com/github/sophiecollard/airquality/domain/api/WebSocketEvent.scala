@@ -1,4 +1,4 @@
-package com.github.sophiecollard.domain.api
+package com.github.sophiecollard.airquality.domain.api
 
 import io.circe.{Decoder, Encoder}
 import io.circe.parser.parse

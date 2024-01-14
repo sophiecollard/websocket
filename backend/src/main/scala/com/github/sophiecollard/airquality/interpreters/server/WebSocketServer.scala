@@ -1,8 +1,9 @@
-package com.github.sophiecollard.interpreters.server
+package com.github.sophiecollard.airquality.interpreters.server
 
 import cats.effect.IO
 import com.comcast.ip4s._
-import com.github.sophiecollard.interpreters.api.WebSocketEndpoints
+import com.github.sophiecollard.airquality.interpreters.api.WebSocketEndpoints
+import com.github.sophiecollard.chat.interpreters.api.ChatEndpoints
 import org.http4s.Http
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.Router
@@ -11,13 +12,14 @@ import org.http4s.server.websocket.WebSocketBuilder2
 
 object WebSocketServer {
 
-  def builder(endpoints: WebSocketEndpoints): EmberServerBuilder[IO] = {
+  def builder(wsEndpoints: WebSocketEndpoints, chatEndpoints: ChatEndpoints[IO]): EmberServerBuilder[IO] = {
     val withCORSPolicy = CORS.policy.withAllowOriginAll
 
     val webSocketApp: WebSocketBuilder2[IO] => Http[IO, IO] = {
       webSocketBuilder =>
         Router[IO](mappings =
-          endpoints.pathPrefix -> withCORSPolicy(endpoints.webSocketRoutes(webSocketBuilder))
+          chatEndpoints.pathPrefix -> withCORSPolicy(chatEndpoints.webSocketRoutes(webSocketBuilder)),
+          wsEndpoints.pathPrefix -> withCORSPolicy(wsEndpoints.webSocketRoutes(webSocketBuilder))
         ).orNotFound
     }
 

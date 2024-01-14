@@ -22,6 +22,8 @@
 
         // Websocket ports setup
         app.ports.connect.subscribe(connect);
+        app.ports.close.subscribe(close);
+        app.ports.sendMessage.subscribe(sendMessage);
 
         let socket;
 
@@ -35,20 +37,22 @@
           socket = new WebSocket(url);
 
           socket.onmessage = function(event) {
-            app.ports.onMessage.send(event.data);
+            app.ports.onMessage.send(JSON.parse(event.data));
           };
+        }
 
-          socket.onerror = function(event) {
-            app.ports.onError.send({});
-          };
+        function close() {
+          // Only attempt to close the socket if its readyState value is 0 (CONNECTING) or 1 (OPEN)
+          if (typeof socket !== 'undefined' && socket.readyState < 2) {
+            socket.close();
+          }
+        }
 
-          socket.onopen = function(event) {
-            app.ports.onOpen.send({});
-          };
-
-          socket.onclose = function(event) {
-            app.ports.onClose.send(event.code);
-          };
+        function sendMessage(message) {
+          // Only attempt to send a message if the socket's readyState is 1 (OPEN)
+          if (typeof socket !== 'undefined' && socket.readyState == 1) {
+            socket.send(JSON.stringify(message));
+          }
         }
       })();
     </script>

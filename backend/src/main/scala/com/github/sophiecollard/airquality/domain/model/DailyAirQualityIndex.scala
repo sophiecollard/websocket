@@ -1,6 +1,6 @@
-package com.github.sophiecollard.domain.model
+package com.github.sophiecollard.airquality.domain.model
 
-import com.github.sophiecollard.domain.model.DailyAirQualityIndex.LocalAuthority
+import DailyAirQualityIndex.LocalAuthority
 import enumeratum.EnumEntry.Uppercase
 import enumeratum._
 import io.circe.{Decoder, Encoder, Json}
