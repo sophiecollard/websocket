@@ -5,6 +5,7 @@ import Html exposing (Html, br, button, div, h1, input, label, text, textarea)
 import Html.Attributes exposing (class, placeholder, style, value)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode
+import Json.Encode
 import WebSocket
 
 
@@ -67,7 +68,10 @@ init _ =
 type Msg
     = UpdateUserId String
     | JoinChat
+    | UpdateCurrentMessage String
+    | PostCurrentMessage
     | HandleMessageEvent Json.Decode.Value
+    | LeaveChat
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -83,6 +87,16 @@ update msg model =
             , WebSocket.connect ("ws://localhost:8081/v1/chat?userId=" ++ welcomeData.userId)
             )
 
+        ( UpdateCurrentMessage currentMessage, Chat chatData ) ->
+            ( Chat { chatData | currentMessage = currentMessage }
+            , Cmd.none
+            )
+
+        ( PostCurrentMessage, Chat chatData ) ->
+            ( Chat { chatData | currentMessage = "" }
+            , WebSocket.sendMessage (Json.Encode.string chatData.currentMessage)
+            )
+
         ( HandleMessageEvent payload, Chat chatData ) ->
             case Json.Decode.decodeValue messageDecoder payload of
                 Ok message ->
@@ -92,6 +106,11 @@ update msg model =
 
                 Err _ ->
                     ( model, Cmd.none )
+
+        ( LeaveChat, Chat _ ) ->
+            ( Welcome (WelcomeData "")
+            , WebSocket.close ()
+            )
 
         _ ->
             ( model, Cmd.none )
@@ -151,7 +170,7 @@ view model =
                 -- Message history
                 , div [ class "field" ]
                     [ textarea [ class "textarea", style "height" "70vh" ]
-                        [ text ("This is a message" ++ "\n" ++ "This is another") ]
+                        (chatData.messages |> List.reverse |> List.map (\m -> text (m.author ++ ": " ++ m.contents ++ "\n")))
                     ]
 
                 -- New message field
@@ -159,6 +178,7 @@ view model =
                     [ input
                         [ class "input"
                         , value chatData.currentMessage
+                        , onInput UpdateCurrentMessage
                         ]
                         []
                     ]
@@ -166,7 +186,18 @@ view model =
                 -- Post message button
                 , div [ class "field" ]
                     [ button
-                        [ class "button is-info is-fullwidth" ]
+                        [ class "button is-info is-fullwidth"
+                        , onClick PostCurrentMessage
+                        ]
                         [ text "Post Message" ]
+                    ]
+
+                -- Leave button
+                , div [ class "field" ]
+                    [ button
+                        [ class "button is-danger is-fullwidth"
+                        , onClick LeaveChat
+                        ]
+                        [ text "Leave chat" ]
                     ]
                 ]

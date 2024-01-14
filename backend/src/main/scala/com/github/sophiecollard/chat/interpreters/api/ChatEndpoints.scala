@@ -4,7 +4,7 @@ import cats.effect.kernel.Async
 import com.github.sophiecollard.airquality.domain.api.WebSocketEvent
 import com.github.sophiecollard.chat.domain.api.ChatEndpointAlgebra
 import com.github.sophiecollard.chat.domain.model.Message
-import fs2.Pipe
+import fs2.{Pipe, Stream}
 import org.http4s.HttpRoutes
 import org.http4s.server.websocket.WebSocketBuilder2
 import sttp.capabilities.WebSockets
@@ -21,14 +21,22 @@ object ChatEndpoints {
   def apply[F[_]: Async]: ChatEndpoints[F] = {
     val getMessages: ServerEndpoint[Fs2Streams[F] with WebSockets, F] =
       ChatEndpointAlgebra.joinChat.serverLogicPure { userId =>
+        println(s"User $userId has joined the chat") // TODO Remove
         Right[Nothing, Pipe[F, WebSocketEvent[String], WebSocketEvent[Message]]] { inputStream =>
+          val outputStream = Stream
+            .emit[F, WebSocketEvent[Message]](WebSocketEvent.Message(Message(s"User $userId has joined the chat", userId)))
+
           inputStream
             // Consume the input stream until a Close event is received
             .takeWhile(!_.isCloseFrame)
             // Extract the Message event payloads from the stream
             .collect { case WebSocketEvent.Message(msg) => msg }
-            // Echo back the Message events
+            // Print received messages to the console to help with debugging
+            .evalTap(msg => Async[F].delay(println(s"${userId.value}: $msg")))
+            // Echo back the Messages
             .map { content => WebSocketEvent.Message(Message(content, userId)) }
+            // Merge with output stream to display message about user joining
+            .merge(outputStream)
         }
       }
 
