@@ -1,9 +1,9 @@
-package com.github.sophiecollard.airquality.interpreters
+package com.github.sophiecollard.interpreters
 
 import cats.effect.IO
 import cats.implicits._
-import com.github.sophiecollard.airquality.domain.error.AppError
-import com.github.sophiecollard.airquality.domain.error.AppError.{FailedToDecodeThirdPartyResponse, ThirdPartyRespondedWithAnError}
+import com.github.sophiecollard.domain.error.AppError
+import com.github.sophiecollard.domain.error.AppError.{FailedToDecodeThirdPartyResponse, ThirdPartyRespondedWithAnError}
 import org.typelevel.log4cats.Logger
 import sttp.tapir.DecodeResult
 

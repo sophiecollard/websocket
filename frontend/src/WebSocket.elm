@@ -1,15 +1,18 @@
-port module WebSocket exposing (close, connect, onMessage, sendMessage)
+port module WebSocket exposing (connect, onClose, onError, onMessage, onOpen)
 
-import Json.Decode exposing (Value)
+import Json.Encode exposing (Value)
 
 
 port connect : String -> Cmd msg
 
 
-port close : () -> Cmd msg
+port onClose : (Int -> msg) -> Sub msg
 
 
-port sendMessage : Value -> Cmd msg
+port onError : (Value -> msg) -> Sub msg
 
 
-port onMessage : (Value -> msg) -> Sub msg
+port onMessage : (String -> msg) -> Sub msg
+
+
+port onOpen : (Value -> msg) -> Sub msg

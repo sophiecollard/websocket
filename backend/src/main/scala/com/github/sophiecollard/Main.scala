@@ -1,11 +1,10 @@
 package com.github.sophiecollard
 
 import cats.effect.{ExitCode, IO, IOApp}
-import com.github.sophiecollard.airquality.domain.model.DailyAirQualityIndex
-import com.github.sophiecollard.airquality.interpreters.api.{Endpoints, WebSocketEndpoints}
-import com.github.sophiecollard.airquality.interpreters.clients.LondonAirClient
-import com.github.sophiecollard.airquality.interpreters.server.{Server, WebSocketServer}
-import com.github.sophiecollard.chat.interpreters.api.ChatEndpoints
+import com.github.sophiecollard.domain.model.DailyAirQualityIndex
+import com.github.sophiecollard.interpreters.api.{Endpoints, WebSocketEndpoints}
+import com.github.sophiecollard.interpreters.clients.LondonAirClient
+import com.github.sophiecollard.interpreters.server.{Server, WebSocketServer}
 import fs2._
 import org.http4s.ember.client.EmberClientBuilder
 import org.typelevel.log4cats.Logger
@@ -23,10 +22,10 @@ object Main extends IOApp {
         _ <- Stream.eval(logger.info(s"Server ready with data: $dailyAirQualityIndex"))
         _ = println(s"Server ready with data: $dailyAirQualityIndex")
         (endpoints, wsEndpoints) = (Endpoints(dailyAirQualityIndex), WebSocketEndpoints(dailyAirQualityIndex))
-        chatWebsocketEndpoints = ChatEndpoints[IO]
-        (server, wsServer) = (Server.builder(endpoints), WebSocketServer.builder(wsEndpoints, chatWebsocketEndpoints))
+        (server, wsServer) = (Server.builder(endpoints), WebSocketServer.builder(wsEndpoints))
         _ <- Stream.eval(wsServer.build.use(_ => server.build.use(_ => IO.never)))
       } yield ExitCode.Success
+
     appStream.compile.last.map(_.getOrElse(ExitCode.Error))
   }
 }
