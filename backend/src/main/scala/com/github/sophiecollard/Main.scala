@@ -5,6 +5,7 @@ import com.github.sophiecollard.airquality.domain.model.DailyAirQualityIndex
 import com.github.sophiecollard.airquality.interpreters.api.{Endpoints, WebSocketEndpoints}
 import com.github.sophiecollard.airquality.interpreters.clients.LondonAirClient
 import com.github.sophiecollard.airquality.interpreters.server.{Server, WebSocketServer}
+import com.github.sophiecollard.chat.domain.services.ChatService
 import com.github.sophiecollard.chat.interpreters.api.ChatEndpoints
 import fs2._
 import org.http4s.ember.client.EmberClientBuilder
@@ -23,7 +24,8 @@ object Main extends IOApp {
         _ <- Stream.eval(logger.info(s"Server ready with data: $dailyAirQualityIndex"))
         _ = println(s"Server ready with data: $dailyAirQualityIndex")
         (endpoints, wsEndpoints) = (Endpoints(dailyAirQualityIndex), WebSocketEndpoints(dailyAirQualityIndex))
-        chatWebsocketEndpoints = ChatEndpoints[IO]
+        chatService = ChatService[IO]
+        chatWebsocketEndpoints = ChatEndpoints[IO](chatService)
         (server, wsServer) = (Server.builder(endpoints), WebSocketServer.builder(wsEndpoints, chatWebsocketEndpoints))
         _ <- Stream.eval(wsServer.build.use(_ => server.build.use(_ => IO.never)))
       } yield ExitCode.Success
