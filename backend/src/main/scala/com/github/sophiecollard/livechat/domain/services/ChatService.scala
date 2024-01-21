@@ -5,10 +5,11 @@ import cats.effect.std.Queue
 import cats.implicits._
 import com.github.sophiecollard.livechat.domain.api.WebSocketEvent
 import com.github.sophiecollard.livechat.domain.model.{Message, Username}
-import fs2.Stream
+import fs2.{Pipe, Stream}
+import sttp.model.StatusCode
 
 trait ChatService[F[_]] {
-  def join(username: Username, incomingUserMessageStream: Stream[F, WebSocketEvent[String]]): Stream[F, WebSocketEvent[Message]]
+  def join(username: Username): Either[(String, StatusCode), Pipe[F, WebSocketEvent[String], WebSocketEvent[Message]]]
   def leave(username: Username): F[Unit]
 }
 
@@ -16,21 +17,28 @@ object ChatService {
   def apply[F[_]: Async]: ChatService[F] = new ChatService[F] {
     private var state: Map[Username, Queue[F, WebSocketEvent[Message]]] = Map.empty
 
-    override def join(username: Username, incomingUserMessageStream: Stream[F, WebSocketEvent[String]]): Stream[F, WebSocketEvent[Message]] = {
-      for {
-        // Create a new message queue for the user joining the chat
-        queue <- Stream.eval(Queue.unbounded[F, WebSocketEvent[Message]])
-        // Add the user's message queue to the state
-        _ <- Stream.eval(Async[F].delay { state = state + (username -> queue) })
-        // Blend user messages with admin messages about users joining and/or leaving the chat
-        incomingBlendedMessageStream = processIncomingUserMessageStream(username, incomingUserMessageStream)
-        // Broadcast incoming user and admin messages by adding them onto every other user's queue
-        enqueuedMessageStream = incomingBlendedMessageStream.evalMap(event => state.view.filterKeys(_ != username).values.toList.traverse(_.offer(event)).as(event))
-        // Stream messages from the user's queue
-        dequeuedMessageStream = Stream.fromQueueUnterminated(queue)
-        // Merge the enqueued and dequeued message streams into a single stream
-        outgoingMessageStream <- dequeuedMessageStream merge enqueuedMessageStream
-      } yield outgoingMessageStream
+    override def join(username: Username): Either[(String, StatusCode), Pipe[F, WebSocketEvent[String], WebSocketEvent[Message]]] = {
+      // Return an error if the username is already taken
+      if (username.value.toLowerCase == "admin" || state.keys.exists(_ == username))
+        Left(("Username already taken", StatusCode.Conflict))
+      else Right { incomingUserMessageStream =>
+        for {
+          // Create a new message queue for the user joining the chat
+          queue <- Stream.eval(Queue.unbounded[F, WebSocketEvent[Message]])
+          // Add the user's message queue to the state
+          _ <- Stream.eval(Async[F].delay {
+            state = state + (username -> queue)
+          })
+          // Blend user messages with admin messages about users joining and/or leaving the chat
+          incomingBlendedMessageStream = processIncomingUserMessageStream(username, incomingUserMessageStream)
+          // Broadcast incoming user and admin messages by adding them onto every other user's queue
+          enqueuedMessageStream = incomingBlendedMessageStream.evalMap(event => state.view.filterKeys(_ != username).values.toList.traverse(_.offer(event)).as(event))
+          // Stream messages from the user's queue
+          dequeuedMessageStream = Stream.fromQueueUnterminated(queue)
+          // Merge the enqueued and dequeued message streams into a single stream
+          outgoingMessageStream <- dequeuedMessageStream merge enqueuedMessageStream
+        } yield outgoingMessageStream
+      }
     }
 
     private def processIncomingUserMessageStream(username: Username, incomingUserMessageStream: Stream[F, WebSocketEvent[String]]): Stream[F, WebSocketEvent[Message]] = {

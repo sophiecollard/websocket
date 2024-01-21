@@ -21,9 +21,7 @@ object ChatEndpoints {
   def apply[F[_]: Async](chatService: ChatService[F]): ChatEndpoints[F] = {
     val getMessages: ServerEndpoint[Fs2Streams[F] with WebSockets, F] =
       ChatEndpointDefinitions.joinChat.serverLogicPure { userId =>
-        Right[Nothing, Pipe[F, WebSocketEvent[String], WebSocketEvent[Message]]] { inputStream =>
-          chatService.join(userId, inputStream)
-        }
+        chatService.join(userId)
       }
 
     val webSocketRoutes: WebSocketBuilder2[F] => HttpRoutes[F] =
