@@ -21,6 +21,8 @@ object WebSocketEvent {
 
   case object Close extends WebSocketEvent[Nothing]
 
+  def apply[A](value: A): WebSocketEvent[A] = Message(value)
+
   implicit def codec[A](implicit de: Decoder[A], en: Encoder[A]): Codec[WebSocketFrame, WebSocketEvent[A], CodecFormat.TextPlain] =
     Codec.webSocketFrame.mapDecode[WebSocketEvent[A]] {
       case WebSocketFrame.Text(payload, true, None) =>
