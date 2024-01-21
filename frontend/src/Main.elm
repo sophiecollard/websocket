@@ -32,12 +32,12 @@ type Model
 
 
 type alias WelcomeData =
-    { userId : String
+    { username : String
     }
 
 
 type alias ChatData =
-    { userId : String
+    { username : String
     , messages : List Message
     , currentMessage : String
     }
@@ -66,7 +66,7 @@ init _ =
 
 
 type Msg
-    = UpdateUserId String
+    = UpdateUsername String
     | JoinChat
     | UpdateCurrentMessage String
     | PostCurrentMessage
@@ -77,14 +77,14 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( msg, model ) of
-        ( UpdateUserId userId, Welcome welcomeData ) ->
-            ( Welcome { welcomeData | userId = userId }
+        ( UpdateUsername username, Welcome welcomeData ) ->
+            ( Welcome { welcomeData | username = username }
             , Cmd.none
             )
 
         ( JoinChat, Welcome welcomeData ) ->
-            ( Chat (ChatData welcomeData.userId [] "")
-            , WebSocket.connect ("ws://localhost:8081/v1/chat?userId=" ++ welcomeData.userId)
+            ( Chat (ChatData welcomeData.username [] "")
+            , WebSocket.connect ("ws://localhost:8081/v1/chat?username=" ++ welcomeData.username)
             )
 
         ( UpdateCurrentMessage currentMessage, Chat chatData ) ->
@@ -100,7 +100,7 @@ update msg model =
         ( HandleMessageEvent payload, Chat chatData ) ->
             case Json.Decode.decodeValue messageDecoder payload of
                 Ok message ->
-                    ( Chat (ChatData chatData.userId (message :: chatData.messages) chatData.currentMessage)
+                    ( Chat (ChatData chatData.username (message :: chatData.messages) chatData.currentMessage)
                     , Cmd.none
                     )
 
@@ -141,12 +141,12 @@ view model =
                     [ h1 [ class "title is-2" ]
                         [ text "Welcome" ]
                     , div [ class "field" ]
-                        [ label [ class "label" ] [ text "Pick a user ID" ]
+                        [ label [ class "label" ] [ text "Pick a username" ]
                         , input
                             [ class "input is-medium"
-                            , placeholder "ffe79323-3a82-4b16-9035-31c71d5cfbdf"
-                            , value welcomeData.userId
-                            , onInput UpdateUserId
+                            , placeholder "Choose a username"
+                            , value welcomeData.username
+                            , onInput UpdateUsername
                             ]
                             []
                         ]
@@ -164,7 +164,7 @@ view model =
             div [ class "container" ]
                 [ br [] []
                 , div [ class "content" ]
-                    [ h1 [ class "title is-2" ] [ text ("Welcome " ++ chatData.userId) ]
+                    [ h1 [ class "title is-2" ] [ text ("Welcome " ++ chatData.username) ]
                     ]
 
                 -- Message history

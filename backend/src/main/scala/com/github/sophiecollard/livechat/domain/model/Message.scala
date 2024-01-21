@@ -5,7 +5,7 @@ import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 
 final case class Message(
   contents: String,
-  author: Id[User]
+  author: Username
 )
 
 object Message {
